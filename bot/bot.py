@@ -24,7 +24,6 @@ from telegram.constants import ParseMode, ChatAction
 import config
 import openai_utils
 
-
 # setup
 db = None
 if config.db_type == "mongodb":
@@ -45,7 +44,6 @@ HELP_MESSAGE = """Commands:
 ⚪ /balance – Show balance
 ⚪ /help – Show help
 """
-
 
 def split_text_into_chunks(text, chunk_size):
     for i in range(0, len(text), chunk_size):
@@ -311,6 +309,7 @@ async def error_handle(update: Update, context: CallbackContext) -> None:
         await context.bot.send_message(update.effective_chat.id, "Some error in error handler")
 
 def run_bot() -> None:
+
     application = (
         ApplicationBuilder()
         .token(config.telegram_token)
@@ -341,7 +340,7 @@ def run_bot() -> None:
     application.add_error_handler(error_handle)
     
     if config.webhook_url:
-        application.run_webhook(port=config.port, webhook_url=config.webhook_url)
+        application.run_webhook(port=config.webhook_port, webhook_url=config.webhook_url)
     else:
         application.run_polling()
 
