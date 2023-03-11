@@ -348,10 +348,11 @@ def run_bot() -> None:
     application.add_error_handler(error_handle)
     
     if config.webhook_url:
+        logger.info("Starting webhook")
         application.run_webhook(port=config.webhook_port, webhook_url=config.webhook_url)
     else:
+        logger.info("Starting polling")
         application.run_polling()
-
 
 
 if __name__ == "__main__":
