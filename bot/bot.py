@@ -310,6 +310,14 @@ async def error_handle(update: Update, context: CallbackContext) -> None:
 
 def run_bot() -> None:
 
+    print("Starting bot")
+    # dump config
+    print("Config:")
+    for key, value in config.__dict__.items():
+        if key.startswith("_"):
+            continue
+        print(f"{key}: {value}")
+
     application = (
         ApplicationBuilder()
         .token(config.telegram_token)
