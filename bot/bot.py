@@ -349,7 +349,7 @@ def run_bot() -> None:
     
     if config.webhook_url:
         print("Starting webhook")
-        application.run_webhook(port=config.webhook_port, webhook_url=config.webhook_url)
+        application.run_webhook(listen='0.0.0.0', port=config.webhook_port, webhook_url=config.webhook_url)
     else:
         print("Starting polling")
         application.run_polling()
