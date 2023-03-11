@@ -4,13 +4,7 @@ from pathlib import Path
 
 import os
 
-config_dir = None
-if "CONFIG_DIR" in os.environ:
-    config_dir = Path(os.environ["CONFIG_DIR"]).resolve()
-else:
-    config_dir = Path(__file__).parent.parent.resolve() / "config"
-
-print(config_dir)
+config_dir = Path(__file__).parent.parent.resolve() / "config"
 
 # load yaml config
 with open(config_dir / "config.yml", 'r') as f:
@@ -26,7 +20,7 @@ openai_api_key = config_yaml["openai_api_key"]
 use_chatgpt_api = config_yaml.get("use_chatgpt_api", True)
 allowed_telegram_usernames = config_yaml["allowed_telegram_usernames"]
 new_dialog_timeout = config_yaml["new_dialog_timeout"]
-mongodb_uri = f"mongodb://mongo:{config_env['MONGODB_PORT']}"
+mongodb_uri = f"mongodb://mongo:{config_env.get('MONGODB_PORT', 27017)}"
 webhook_port = config_env.get("PORT", 8000)
 webhook_url = config_env.get("WEBHOOK_URL", None)
 db_type = config_env.get("DB_TYPE", "mongodb")
