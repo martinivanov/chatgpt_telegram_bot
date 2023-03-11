@@ -1,3 +1,4 @@
+import asyncio
 import os
 import logging
 import traceback
@@ -21,12 +22,20 @@ from telegram.ext import (
 from telegram.constants import ParseMode, ChatAction
 
 import config
-import database
 import openai_utils
 
 
 # setup
-db = database.Database()
+db = None
+if config.db_type == "mongodb":
+    import database
+    db = database.Database()
+elif config.db_type == "gcs":
+    import database_gcs
+    db = database_gcs.GCSDatabase()
+else:
+    raise ValueError("Unknown database type")
+
 logger = logging.getLogger(__name__)
 
 HELP_MESSAGE = """Commands:
@@ -108,7 +117,9 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
 
     # new dialog timeout
     if use_new_dialog_timeout:
-        if (datetime.now() - db.get_user_attribute(user_id, "last_interaction")).seconds > config.new_dialog_timeout and len(db.get_dialog_messages(user_id)) > 0:
+        last_interaction_str = db.get_user_attribute(user_id, "last_interaction")
+        last_interaction = datetime.strptime(last_interaction_str, "%Y-%m-%d %H:%M:%S.%f") if last_interaction_str is not None else None
+        if (datetime.now() - last_interaction).seconds > config.new_dialog_timeout and len(db.get_dialog_messages(user_id)) > 0:
             db.start_new_dialog(user_id)
             await update.message.reply_text(f"Starting new dialog due to timeout (<b>{openai_utils.CHAT_MODES[chat_mode]['name']}</b> mode) ✅", parse_mode=ParseMode.HTML)
     db.set_user_attribute(user_id, "last_interaction", datetime.now())
@@ -329,8 +340,11 @@ def run_bot() -> None:
     
     application.add_error_handler(error_handle)
     
-    # start the bot
-    application.run_polling()
+    if config.webhook_url:
+        application.run_webhook(port=config.port, webhook_url=config.webhook_url)
+    else:
+        application.run_polling()
+
 
 
 if __name__ == "__main__":
