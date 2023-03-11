@@ -4,14 +4,17 @@ from pathlib import Path
 
 import os
 
-config_dir = Path(__file__).parent.parent.resolve() / "config"
+app_root_path = Path(__file__).parent.parent.resolve()
+env_path = os.environ.get("ENV_PATH", app_root_path / "config.env")
+config_path = os.environ.get("CONFIG_PATH", app_root_path / "config.yml")
+chat_modes_path = os.environ.get("CHAT_MODES_PATH", app_root_path / "config/chat_modes.yml")
 
 # load yaml config
-with open(config_dir / "config.yml", 'r') as f:
+with open(config_path, 'r') as f:
     config_yaml = yaml.safe_load(f)
 
 # load .env config
-dotenv.load_dotenv(config_dir / "config.env", override=False)
+dotenv.load_dotenv(env_path, override=False)
 config_env = os.environ
 
 # config parameters
@@ -28,7 +31,7 @@ gcs_project = config_env.get("GCS_PROJECT", None)
 gcs_bucket = config_env.get("GCS_BUCKET", None)
 
 # chat_modes
-with open(config_dir / "chat_modes.yml", 'r') as f:
+with open(chat_modes_path, 'r') as f:
     chat_modes = yaml.safe_load(f)
 
 # prices
